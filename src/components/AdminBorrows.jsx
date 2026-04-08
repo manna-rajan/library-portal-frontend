@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Nav from './Nav';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
+
 const AdminBorrows = () => {
     const [borrowings, setBorrowings] = useState([]);
     const [fines, setFines] = useState([]);
@@ -24,7 +26,7 @@ const AdminBorrows = () => {
 
     const fetchBorrowings = async () => {
         try {
-            const response = await axios.post('http://localhost:3001/admin/borrowings');
+            const response = await axios.post(`${API_BASE_URL}/admin/borrowings`, { adminId });
             if (response.data.status === 'success') {
                 setBorrowings(response.data.data);
             } else {
@@ -32,13 +34,13 @@ const AdminBorrows = () => {
             }
         } catch (err) {
             console.error("Error fetching all borrowings:", err);
-            setError('An error occurred while fetching borrowings.');
+            setError(err.response?.data?.message || 'An error occurred while fetching borrowings.');
         }
     };
 
     const fetchFines = async () => {
         try {
-            const response = await axios.post('http://localhost:3001/admin/fines');
+            const response = await axios.post(`${API_BASE_URL}/admin/fines`, { adminId });
             if (response.data.status === 'success') {
                 setFines(response.data.data);
             } else {
@@ -46,17 +48,18 @@ const AdminBorrows = () => {
             }
         } catch (err) {
             console.error("Error fetching all fines:", err);
-            setError('An error occurred while fetching fines.');
+            setError(err.response?.data?.message || 'An error occurred while fetching fines.');
         }
     };
 
     const fetchActiveOverdue = async () => {
         try {
-            const response = await axios.post('http://localhost:3001/admin/calculate-active-fines');
+            const response = await axios.post(`${API_BASE_URL}/admin/calculate-active-fines`, { adminId });
             if (response.data.status === 'success') {
                 setActiveOverdue(response.data.data);
             } else {
                 console.error(response.data.message);
+                setError(response.data.message || 'Could not fetch potential fines.');
             }
         } catch (err) {
             console.error("Error fetching active overdue fines:", err);
@@ -88,8 +91,11 @@ const AdminBorrows = () => {
                         <button className={`btn ${view === 'paid_fines' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setView('paid_fines')}>
                             Paid Fines ({paidFines.length})
                         </button>
-                        <button className={`btn ${view === 'current_fines' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setView('current_fines')}>
-                            Current Fines ({outstandingFines.length + activeOverdue.length})
+                        <button className={`btn ${view === 'outstanding_fines' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setView('outstanding_fines')}>
+                            Outstanding Fines ({outstandingFines.length})
+                        </button>
+                        <button className={`btn ${view === 'potential_fines' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setView('potential_fines')}>
+                            Potential Fines ({activeOverdue.length})
                         </button>
                     </div>
 
@@ -155,7 +161,7 @@ const AdminBorrows = () => {
                         </div>
                     )}
 
-                    {view === 'current_fines' && (
+                    {view === 'outstanding_fines' && (
                         <div>
                             <h3>Outstanding Fines (Unpaid)</h3>
                             <div className="table-responsive mb-5">
@@ -182,7 +188,10 @@ const AdminBorrows = () => {
                                     </tbody>
                                 </table>
                             </div>
-
+                        </div>
+                    )}
+                    {view === 'potential_fines' && (
+                        <div>
                             <h3>Potential Fines (Active Overdue)</h3>
                             <div className="alert alert-info">
                                 These fines are calculated based on today's date for books that have not yet been returned.

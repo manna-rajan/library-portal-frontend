@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Nav from './Nav';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
+
 const ViewBooks = () => {
     const [allBooks, setAllBooks] = useState([]);
     const [books, setBooks] = useState([]);
@@ -27,7 +29,7 @@ const ViewBooks = () => {
 
     const fetchBooks = async () => {
         try {
-            const response = await axios.post("http://localhost:3001/books");
+            const response = await axios.post(`${API_BASE_URL}/books`);
             setAllBooks(response.data);
             setBooks(response.data);
         } catch (err) {
@@ -65,7 +67,7 @@ const ViewBooks = () => {
         setError('');
         try {
             // Check for overdue books before allowing new borrowings.
-            const borrowingsResponse = await axios.post('http://localhost:3001/borrowings', { readerId });
+            const borrowingsResponse = await axios.post(`${API_BASE_URL}/borrowings`, { readerId });
             const activeBorrowings = borrowingsResponse.data.data;
             const hasOverdueBooks = activeBorrowings.some(borrow => new Date(borrow.dueDate) < new Date());
 
@@ -76,7 +78,7 @@ const ViewBooks = () => {
             }
 
             const bookIds = selectedBooks.map(book => book._id);
-            const response = await axios.post("http://localhost:3001/books/borrow-multiple", { readerId, bookIds });
+            const response = await axios.post(`${API_BASE_URL}/books/borrow-multiple`, { readerId, bookIds });
 
             if (response.data.status === 'success') {
                 alert(response.data.message);

@@ -97,7 +97,8 @@ const AddBook = () => {
             link: input.link.trim()
         };
         try {
-            const response = await axios.post("http://localhost:3001/add-book", trimmedInput);
+            const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
+            const response = await axios.post(`${API_BASE_URL}/add-book`, trimmedInput);
             if (response.data.status === "success") {
                 alert("Book added successfully!");
                 setInput({

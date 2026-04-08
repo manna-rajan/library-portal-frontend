@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Nav from './Nav';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
+
 const MyBorrows = () => {
     const [borrowings, setBorrowings] = useState([]);
     const [error, setError] = useState('');
@@ -11,7 +13,7 @@ const MyBorrows = () => {
 
     const fetchBorrowings = async () => {
         try {
-            const response = await axios.post('http://localhost:3001/borrowings', { readerId });
+            const response = await axios.post(`${API_BASE_URL}/borrowings`, { readerId });
             if (response.data.status === 'success') {
                 setBorrowings(response.data.data);
             } else {
@@ -34,15 +36,12 @@ const MyBorrows = () => {
     const handleReturn = async (borrowingId) => {
         setError('');
         try {
-            const returnResponse = await axios.post("http://localhost:3001/books/return", { borrowingId });
+            const returnResponse = await axios.post(`${API_BASE_URL}/books/return`, { borrowingId, readerId });
             if (returnResponse.data.status === 'success') {
-                // After returning, call /fines to check for any outstanding fines.
-                const finesResponse = await axios.post('http://localhost:3001/fines', { readerId });
-                if (finesResponse.data.status === 'success' && finesResponse.data.total > 0) {
+                if (returnResponse.data.data.totalFine > 0) {
                     navigate('/pay-fines');
                 } else {
-                    // If no fines exist, the return was on-time. Show the success message and refresh the list.
-                    alert(returnResponse.data.message);
+                    alert("Book returned successfully.");
                     fetchBorrowings();
                 }
             }

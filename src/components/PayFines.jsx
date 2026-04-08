@@ -3,6 +3,9 @@ import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Nav from './Nav';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
+const CASHFREE_MODE = process.env.REACT_APP_CASHFREE_MODE || "sandbox";
+
 const PayFines = () => {
     const [fines, setFines] = useState({ total: 0, records: [] });
     const [isPaying, setIsPaying] = useState(false);
@@ -19,7 +22,7 @@ const PayFines = () => {
         const verifyPaymentOnBackend = async (orderIdToVerify) => {
             setIsVerifying(true);
             try {
-                const response = await axios.post('http://localhost:3001/verify-payment', {
+                const response = await axios.post(`${API_BASE_URL}/verify-payment`, {
                     order_id: orderIdToVerify,
                     readerId,
                 });
@@ -39,7 +42,7 @@ const PayFines = () => {
 
         const initialFetchFines = async () => {
             try {
-                const response = await axios.post('http://localhost:3001/fines', { readerId });
+                const response = await axios.post(`${API_BASE_URL}/fines`, { readerId });
                 if (response.data.status === 'success') {
                     // If a user lands here with no fines, and we are not verifying a payment, send them to my-borrows.
                     if (response.data.total === 0 && !orderId) {
@@ -72,11 +75,11 @@ const PayFines = () => {
         setIsPaying(true);
         setError('');
         try {
-            const response = await axios.post('http://localhost:3001/create-payment-order', { readerId });
+            const response = await axios.post(`${API_BASE_URL}/create-payment-order`, { readerId });
 
             if (response.data.status === 'success') {
                 const { payment_session_id } = response.data.data;
-                const cashfree = window.Cashfree({ mode: "sandbox" });
+                const cashfree = window.Cashfree({ mode: CASHFREE_MODE });
 
                 cashfree.checkout({
                     paymentSessionId: payment_session_id,

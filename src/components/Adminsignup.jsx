@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
+
 const Adminsignup = () => {
   const navigate = useNavigate();
   const VALIDATION_RULES = {
@@ -66,7 +68,7 @@ const Adminsignup = () => {
     };
 
     try {
-      const response = await axios.post("http://localhost:3001/admin-signup", trimmedInput);
+      const response = await axios.post(`${API_BASE_URL}/admin-signup`, trimmedInput);
       if (response.data.status === "success") {
         alert("Signed up successfully! Please sign in.");
         navigate("/admin/signin");

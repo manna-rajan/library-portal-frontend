@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
+
 
 const Adminsignin = () => {
   const navigate = useNavigate();
@@ -61,7 +63,7 @@ const Adminsignin = () => {
     };
 
     try {
-      const response = await axios.post("http://localhost:3001/admin-signin", trimmedInput);
+      const response = await axios.post(`${API_BASE_URL}/admin-signin`, trimmedInput);
       if (response.data.status === "success") {
         sessionStorage.setItem("adminid", response.data.adminId);
         sessionStorage.setItem("adminname", response.data.name);

@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
+
 const Readersignin = () => {
   const navigate = useNavigate();
   const VALIDATION_RULES = {
@@ -60,7 +62,7 @@ const Readersignin = () => {
     };
 
     try {
-      const response = await axios.post("http://localhost:3001/reader-signin", trimmedInput);
+      const response = await axios.post(`${API_BASE_URL}/reader-signin`, trimmedInput);
       if (response.data.status === "success") {
         sessionStorage.setItem("readerid", response.data.readerId);
         sessionStorage.setItem("readername", response.data.name);
