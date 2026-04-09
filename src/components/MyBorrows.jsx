@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Nav from './Nav';
@@ -11,7 +11,7 @@ const MyBorrows = () => {
     const navigate = useNavigate();
     const readerId = sessionStorage.getItem("readerid");
 
-    const fetchBorrowings = async () => {
+    const fetchBorrowings = useCallback(async () => {
         try {
             const response = await axios.post(`${API_BASE_URL}/borrowings`, { readerId });
             if (response.data.status === 'success') {
@@ -23,7 +23,7 @@ const MyBorrows = () => {
             console.error("Error fetching borrowings:", err);
             setError('An error occurred while fetching your borrowed books.');
         }
-    };
+    }, [readerId]);
 
     useEffect(() => {
         if (!readerId) {
@@ -31,7 +31,7 @@ const MyBorrows = () => {
             return;
         }
         fetchBorrowings();
-    }, [readerId, navigate]);
+    }, [readerId, navigate, fetchBorrowings]);
 
     const handleReturn = async (borrowingId) => {
         setError('');

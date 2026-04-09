@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Nav from './Nav';
@@ -14,17 +14,7 @@ const AdminBorrows = () => {
     const navigate = useNavigate();
     const adminId = sessionStorage.getItem("adminid");
 
-    useEffect(() => {
-        if (!adminId) {
-            navigate("/admin/signin");
-            return;
-        }
-        fetchBorrowings();
-        fetchFines();
-        fetchActiveOverdue();
-    }, [adminId, navigate]);
-
-    const fetchBorrowings = async () => {
+    const fetchBorrowings = useCallback(async () => {
         try {
             const response = await axios.post(`${API_BASE_URL}/admin/borrowings`, { adminId });
             if (response.data.status === 'success') {
@@ -36,9 +26,9 @@ const AdminBorrows = () => {
             console.error("Error fetching all borrowings:", err);
             setError(err.response?.data?.message || 'An error occurred while fetching borrowings.');
         }
-    };
+    }, [adminId]);
 
-    const fetchFines = async () => {
+    const fetchFines = useCallback(async () => {
         try {
             const response = await axios.post(`${API_BASE_URL}/admin/fines`, { adminId });
             if (response.data.status === 'success') {
@@ -50,9 +40,9 @@ const AdminBorrows = () => {
             console.error("Error fetching all fines:", err);
             setError(err.response?.data?.message || 'An error occurred while fetching fines.');
         }
-    };
+    }, [adminId]);
 
-    const fetchActiveOverdue = async () => {
+    const fetchActiveOverdue = useCallback(async () => {
         try {
             const response = await axios.post(`${API_BASE_URL}/admin/calculate-active-fines`, { adminId });
             if (response.data.status === 'success') {
@@ -64,7 +54,17 @@ const AdminBorrows = () => {
         } catch (err) {
             console.error("Error fetching active overdue fines:", err);
         }
-    };
+    }, [adminId]);
+
+    useEffect(() => {
+        if (!adminId) {
+            navigate("/admin/signin");
+            return;
+        }
+        fetchBorrowings();
+        fetchFines();
+        fetchActiveOverdue();
+    }, [adminId, navigate, fetchBorrowings, fetchFines, fetchActiveOverdue]);
 
     const formatDate = (dateString) => {
         if (!dateString) return "";
