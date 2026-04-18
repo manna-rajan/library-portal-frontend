@@ -79,11 +79,17 @@ const AdminBorrows = () => {
     return (
         <div className="container">
             <Nav />
+            {error && (
+                <div className="row mt-3">
+                    <div className="col-12">
+                        <div className="alert alert-danger">{error}</div>
+                    </div>
+                </div>
+            )}
             <div className="row mt-3">
                 <div className="col-12">
                     <h2>Admin Dashboard</h2>
-                    {error && <div className="alert alert-danger">{error}</div>}
-
+                    
                     <div className="btn-group mb-4">
                         <button className={`btn ${view === 'active_borrows' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setView('active_borrows')}>
                             Active Borrows ({activeBorrows.length})

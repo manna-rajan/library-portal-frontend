@@ -34,7 +34,7 @@ const ViewBooks = () => {
             setBooks(response.data);
         } catch (err) {
             console.error("Error fetching books:", err);
-            alert("Could not fetch books.");
+            setError("Could not fetch books. Please try again later.");
         }
     };
 
@@ -59,7 +59,7 @@ const ViewBooks = () => {
         }
 
         if (selectedBooks.length === 0) {
-            alert("Please select at least one book to borrow.");
+            setError("Please select at least one book to borrow.");
             return;
         }
 
@@ -84,12 +84,12 @@ const ViewBooks = () => {
                 alert(response.data.message);
                 navigate("/my-borrows");
             } else {
-                alert(response.data.message || "An unknown error occurred during borrowing.");
+                setError(response.data.message || "An unknown error occurred during borrowing.");
             }
         } catch (err) {
             console.error("Error borrowing books:", err);
             const errorMessage = err.response?.data?.message || "An error occurred during borrowing.";
-            alert(errorMessage);
+            setError(errorMessage);
         } finally {
             setIsBorrowing(false);
         }
@@ -98,7 +98,13 @@ const ViewBooks = () => {
     return (
         <div className="container">
             <Nav />
-            {error && <div className="alert alert-danger mt-3">{error}</div>}
+            {error && (
+                <div className="row mt-3">
+                    <div className="col-12">
+                        <div className="alert alert-danger">{error}</div>
+                    </div>
+                </div>
+            )}
             <div className="row mt-3 align-items-center">
                 <div className="col-md-8">
                     <input
